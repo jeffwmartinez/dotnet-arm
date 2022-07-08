@@ -37,9 +37,16 @@
     },
     "repoUrl": {
       "type": "string",
-      "defaultValue": " ",
+      "defaultValue": "https://github.com/jeffwmartinez/dotnet-core-mvc.git",
       "metadata": {
         "description": "Optional Git Repo URL"
+      }
+    },
+    "branch": {
+      "type": "string",
+      "defaultValue": "master",
+      "metadata": {
+        "description": "The branch of the GitHub repository to use."
       }
     },
     "serverName": {
@@ -124,8 +131,25 @@
       "name": "[format('{0}/{1}', parameters('webAppName'), 'web')]",
       "properties": {
         "repoUrl": "[parameters('repoUrl')]",
-        "branch": "master",
-        "isManualIntegration": true
+        "branch": "[parameters('branch')]",
+        "isManualIntegration": false,
+        "deploymentRollbackEnabled": false,
+        "isMercurial": false,
+        "isGitHubAction": true,
+        "gitHubActionConfiguration": {
+          "generateWorkflowFile": true,
+          "workflowSettings": {
+            "appType": "webapp",
+            "publishType": "code",
+            "os": "linux",
+            "runtimeStack": "dotnet",
+            "workflowApiVersion": "2020-12-01",
+            "slotName": "production",
+            "variables": {
+              "runtimeVersion": "6.0.x"
+            }
+          }
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"

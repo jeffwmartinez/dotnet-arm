@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "metadata": {
     "title": "Deploys App Service Plan, Web App, and Azure SQL Database",
-    "description": "This template deploys a Basic App Service Plan, a single Azure SQL Database, and a .NET Web App"
+    "description": "This template deploys a Basic App Service Plan, a single Azure SQL Database, and a .NET 6 Web App"
   },
   "parameters": {
     "webAppName": {
@@ -15,11 +15,11 @@
       }
     },
     "location": {
-      "type": "string",
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Location for all resources."
-      }
+      },
+      "type": "string"
     },
     "sku": {
       "type": "string",
@@ -30,7 +30,7 @@
     },
     "linuxFxVersion": {
       "type": "string",
-      "defaultValue": "DOTNETCORE|3.1", // DOTNET|6.0 ???
+      "defaultValue": "DOTNETCORE|6.0",
       "metadata": {
         "description": "The Runtime stack of current web app"
       }
@@ -52,20 +52,20 @@
     },
     "sqlDBName": {
       "type": "string",
-      "defaultValue": "SampleDB", // default name? 
+      "defaultValue": "SampleDB",
       "metadata": {
         "description": "The name of the SQL Database.",
         "type": "DatabaseServerName"
       }
     },
-    "administratorLogin": { // add default value?
-      "type": "string", 
+    "administratorLogin": {
+      "type": "string",
       "metadata": {
         "description": "The administrator username of the SQL logical server.",
         "type": "DatabaseAdminUsername"
       }
     },
-    "administratorLoginPassword": { // add default value?
+    "administratorLoginPassword": {
       "type": "secureString",
       "metadata": {
         "description": "The administrator password of the SQL logical server.",
@@ -99,6 +99,12 @@
         "httpsOnly": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]",
         "siteConfig": {
+          "appSettings": [
+            {
+              "name": "SQLCONNSTRING",
+              "value": "Server=tcp:[parameters('serverName')],1433;Initial Catalog=[parameters('sqlDBName')];Persist Security Info=False;User ID=[parameters('administratorLogin')];Password=[parameters('administratorLoginPassword')];MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            }
+          ],
           "linuxFxVersion": "[parameters('linuxFxVersion')]",
           "minTlsVersion": "1.2",
           "ftpsState": "FtpsOnly"
@@ -127,7 +133,7 @@
     },
     {
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2021-08-01-preview",
+      "apiVersion": "2021-02-01-preview",
       "name": "[parameters('serverName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -137,12 +143,12 @@
     },
     {
       "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2021-08-01-preview",
+      "apiVersion": "2021-02-01-preview",
       "name": "[format('{0}/{1}', parameters('serverName'), parameters('sqlDBName'))]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Basic",
-        "tier": "Basic" // Basic? B1?
+        "tier": "Basic"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
